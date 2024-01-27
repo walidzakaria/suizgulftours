@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Registration</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <!-- jQuery CDN -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- QR CDN -->
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+  </head>
+  <body>
+    <div class="">
+      <div class="row">
+        <form id="search-code" class="card col-3">
+          <div class="text-center">
+            <h1 class="display-4">Trips</h1>
+          </div>
+          <div class="row">
+            <input type="text" class="form-control col m-2" id="guest-code" placeholder="Search code">
+            <div id="guest-code-help" class="form-text text-danger hidden">Invalid code.</div>
+            <button type="submit" class="btn btn-primary m-2 col btn-sm" style="max-width: 120px;">
+              Search
+              <div id="spinner" class="spinner-border spinner-border-sm hidden" role="status">
+                <span class="sr-only"></span>
+              </div>
+            </button>
+          </div>
+  
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">Name: <span id="name-info" class="info-labels"></span></li>
+            <li class="list-group-item">Dates: <span id="dates-info" class="info-labels"></span></li>
+            <li class="list-group-item">Hotel: <span id="hotel-info" class="info-labels"></span></li>
+            <li class="list-group-item">WhatsApp: <span id="whatsapp-info" class="info-labels"></span></li>
+            <li class="list-group-item">Egypt Phone: <span id="phone-info" class="info-labels"></span></li>
+          </ul>
+        </form>
+        <dev class="scrollable-content col-9 card" style="max-height: 800px; overflow-y: auto;">
+          <table class="table table-hover" id="service-table">
+            <thead>
+              <th>Select</th>
+              <th>Service</th>
+              <th>Service Date</th>
+              <th>Adult</th>
+              <th>Child</th>
+              <th>Inf</th>
+              <th>PUT</th>
+              <th>P.Adult</th>
+              <th>P.Child</th>
+              <th>P.Inf</th>
+              <th>Currency</th>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+          <button class="btn btn-success m-2 col" style="max-width: 120px; max-height: 40px;" onClick="totalizeService()">
+            Confirm
+          </button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="card col-3">
+          <table id="table-total" class="table table-hover">
+            <thead>
+              <th>Currency</th>
+              <th>Amount</th>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-9"></div>
+      </div>
+      <div class="row">
+        <div class="card col-3">
+          <table id="currency-total" class="table table-hover">
+            <thead>
+              <th>Currency</th>
+              <th>Paid</th>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-9"></div>
+      </div>
+    </div>
+  </body>
+  <script>
+    let isSubmitted = false;
+    let registrationInfo = {};
+    let totalCurrency = {};
+    let currencyExchange = [];
+    $(document).ready(function() {
+      getExchange();
+    });
+    $('#search-code').submit(function(e) {
+      e.preventDefault();
+      isSubmitted = true;
+      const code = $('#guest-code').val();
+      $('#spinner').removeClass('hidden');
+      getRegistration(code);
+    });
+
+    function getRegistration(code) {
+      $.ajax({
+        url: `http://localhost:8000/api/get-registration/${code}/`, // Your API endpoint URL
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          // Handle the successful response here
+          console.log(data);
+          registrationInfo = data;
+          $('#guest-code-help').addClass('hidden');
+          $('#spinner').addClass('hidden');
+          $('#name-info').text(registrationInfo.guestname);
+          $('#dates-info').text(`${registrationInfo.arrivaldate} to ${registrationInfo.departuredate}`);
+          $('#hotel-info').text(registrationInfo.hotel_data.hotel);
+          $('#whatsapp-info').text(registrationInfo.whatsappphone);
+          $('#phone-info').text(registrationInfo.phoneegypt);
+          getService(registrationInfo.hotel_data.hotel_id)
+        },
+        error: function(xhr, status, error) {
+          console.error('Error:', status, error);
+          registrationInfo = {};
+          $('#guest-code-help').removeClass('hidden');
+          $('#spinner').addClass('hidden');
+          $('#name-info').text('');
+          $('#dates-info').text('');
+          $('#hotel-info').text('');
+          $('#whatsapp-info').text('');
+          $('#phone-info').text('');
+
+        }
+      });
+
+    }
+    function getService(hotelId) {
+      $.ajax({
+        url: `http://localhost:8000/api/list-service/${hotelId}/`, // Your API endpoint URL
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          // Handle the successful response here
+          console.log(data);
+          const tbody = $('#service-table tbody');
+          tbody.empty();
+          data.forEach((i) => {
+            const newRow = $('<tr>').attr('id', `row-${i.id}`);
+            newRow.append(`<td><input type="checkbox" onClick="selectRow(${i.id})" class="row-check" id="check-${i.id}"/></td>`);
+            newRow.append(`<td>${i.name}</td>`);
+            newRow.append(`<td><input type="date" id="date-${i.id}" class="form-control form-control-sm" style="max-width: 150px;"/></td>`);
+            newRow.append(`<td><input type="number" id="adult-${i.id}" min="0" class="form-control form-control-sm" style="width: 70px;"/></td>`);
+            newRow.append(`<td><input type="number" id="child-${i.id}" min="0" class="form-control form-control-sm" style="width: 70px;"/></td>`);
+            newRow.append(`<td><input type="number" id="inf-${i.id}" min="0" class="form-control form-control-sm" style="width: 70px;"/></td>`);
+            newRow.append(`<td> ${i.put || "00:00"}</td>`);
+            newRow.append(`<td id="p-adult-${i.id}"> ${i.p_adult || 0}</td>`);
+            newRow.append(`<td id="p-child-${i.id}"> ${i.p_child || 0}</td>`);
+            newRow.append(`<td id="p-inf-${i.id}"> ${i.p_inf || 0}</td>`);
+            newRow.append(`<td id="currency-${i.id}"> ${i.currency || 0}</td>`);
+            tbody.append(newRow);
+          });
+        },
+        error: function(xhr, status, error) {
+          console.error('Error:', status, error);
+        }
+      });
+
+    }
+
+    function selectRow(rowId) {
+      const isChecked = $(`#check-${rowId}`).prop('checked');
+      const adult = $(`#adult-${rowId}`);
+      const child = $(`#child-${rowId}`);
+      const inf = $(`#inf-${rowId}`);
+      if (isChecked) {
+        adult.val(registrationInfo.adult);
+        child.val(registrationInfo.child);
+        inf.val(registrationInfo.inf);
+      } else {
+        adult.val(null);
+        child.val(null);
+        inf.val(null);
+      }
+    }
+    function totalizeService() {
+      const dictCurrency = {};
+      const tableRows = $('#service-table tr');
+      tableRows.each(function(index, element) {
+        const elementId = $(element).attr('id')?.substring(4);
+        const isChecked = $(`#check-${elementId}`).prop('checked');
+        if (isChecked) {
+          const adult = $(`#adult-${elementId}`).val();
+          const child = $(`#child-${elementId}`).val();
+          const inf = $(`#inf-${elementId}`).val();
+
+          const pAdult = $(`#p-adult-${elementId}`).text();
+          const pChild = $(`#p-child-${elementId}`).text();
+          const pInf = $(`#p-inf-${elementId}`).text();
+          const currency = $(`#currency-${elementId}`).text();
+          const prevValue = dictCurrency[currency] || 0;
+          let price = parseFloat(adult) * parseFloat(pAdult);
+          price += parseFloat(child) * parseFloat(pChild);
+          price += parseFloat(inf) * parseFloat(pInf);
+          dictCurrency[currency] = prevValue + price;
+          // console.log(adult, child, inf, pAdult, pChild, pInf, price);
+        }
+      });
+      console.log(dictCurrency);
+      totalCurrency = dictCurrency;
+      const tbody = $('#table-total tbody');
+      tbody.empty();
+      Object.keys(dictCurrency).forEach(function(key) {
+        var value = dictCurrency[key];
+        console.log('Key:', key, 'Value:', value);
+        const newRow = $('<tr>');
+        newRow.append(`<td>${key}</td>`);
+        newRow.append(`<td>${value}</td>`);
+        tbody.append(newRow);
+      });
+    }
+    function getExchange() {
+      $.ajax({
+        url: 'http://localhost:8000/api/list-exchange/', // Your API endpoint URL
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+          // Handle the successful response here
+          console.log(data);
+          currencyExchange = data;
+          const tbody = $('#currency-total tbody');
+          tbody.empty();
+          data.forEach((i) => {
+            const newRow = $('<tr>');
+            newRow.append(`<td>${i.currency}</td>`);
+            newRow.append('<td><input type="number" min="0" class="form-control form-control-sm" style="width: 70px;"/></td>');
+            tbody.append(newRow);
+          });
+        },
+        error: function(xhr, status, error) {
+          console.error('Error:', status, error);
+        }
+      });
+
+    }
+  </script>
+  <style>
+    .hidden {
+      display: none;
+    }
+    .card {
+      margin: 10px auto;
+      padding: 40px;
+      border-radius: 20px;
+      background: #f5f7f7;
+    }
+    .info-labels {
+      font-weight: bold;
+    }
+
+    table {
+      max-height: 300px;
+      overflow: auto;
+      display:inline-block;
+    }
+  </style>
+</html>

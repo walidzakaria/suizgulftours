@@ -1,11 +1,12 @@
 from django.shortcuts import render
+from django.db import connection
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status, generics, views
 from rest_framework.response import Response
 from django.http import QueryDict
 import random
 
-from .serializers import GuestInfoSerializer, HotelSerializer, NationalitySerializer
+from .serializers import GuestInfoDetailedSerializer, GuestInfoSerializer, HotelSerializer, NationalitySerializer
 from .models import Tblguestinfo, Tblhotel, Tblnationality
 from .utils import create_id
 
@@ -32,7 +33,7 @@ def get_registration(request, request_id):
         registration = Tblguestinfo.objects.filter(guestinfoid=request_id).first()
         if not registration:
             return Response(data={'error': 'no data'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = GuestInfoSerializer(registration)
+        serializer = GuestInfoDetailedSerializer(registration)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
@@ -61,3 +62,62 @@ def edit_registration(request, request_id):
             serializer.save()
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def list_service(request, hotel_id):
+    if request.method == 'GET':
+        hotel = Tblhotel.objects.filter(hotelid=hotel_id).first()
+        if hotel:
+            hotel_name = hotel.hotel
+        else:
+            hotel_name = 'no hotel'
+        with connection.cursor() as cursor:
+            sql_query = f"""
+                SELECT
+                    s.servesID, s.ServesName, p.PUT, s.PriceAdult,
+                    s.PriceChild, s.PriceInf, s.Currency
+                FROM tblServes s LEFT JOIN tblPUT p
+                    ON s.servesID = p.ServiceID AND p.HotelName = '{hotel_name}'
+            """
+            cursor.execute(sql_query)
+            results = cursor.fetchall()
+
+        # Now 'results' contains the data retrieved from the database
+        # You can process the data as needed
+        request_data = [
+            {
+                'id': i[0],
+                'name': i[1],
+                'put': i[2],
+                'p_adult': i[3],
+                'p_child': i[4],
+                'p_inf': i[5],
+                'currency': i[6],
+            } for i in results
+        ]
+
+        return Response(data=request_data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def list_exchange(request):
+    if request.method == 'GET':
+        with connection.cursor() as cursor:
+            sql_query = """
+                SELECT c.Abbreviation, x.Rate
+                FROM tblCurrency c
+                JOIN tblExchangeRatePeriod x ON c.Abbreviation = x.Currency
+                    AND CONVERT(DATE, GETDATE()) BETWEEN x.ExchangeDateFrom AND x.ExchangeDateTo
+            """
+            cursor.execute(sql_query)
+            results = cursor.fetchall()
+
+        request_data = [
+            {
+                'currency': i[0],
+                'rate': i[1],
+            } for i in results
+        ]
+
+        return Response(data=request_data, status=status.HTTP_200_OK)
