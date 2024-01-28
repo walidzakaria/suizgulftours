@@ -7,4 +7,3 @@ def index(request):
 
 def trips(request):
     return render(request, 'trips.html')
-
