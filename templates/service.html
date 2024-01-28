@@ -158,7 +158,7 @@
 
     function getRegistration(code) {
       $.ajax({
-        url: `http://localhost:8000/api/get-registration/${code}/`, // Your API endpoint URL
+        url: `http://159.223.250.9/api/get-registration/${code}/`, // Your API endpoint URL
         type: 'GET',
         dataType: 'json',
         success: function(data) {
@@ -176,7 +176,7 @@
     }
     function getService(hotelId) {
       $.ajax({
-        url: `http://localhost:8000/api/list-service/${hotelId}/`, // Your API endpoint URL
+        url: `http://159.223.250.9/api/list-service/${hotelId}/`, // Your API endpoint URL
         type: 'GET',
         dataType: 'json',
         success: function(data) {
@@ -292,7 +292,7 @@
     }
     function getExchange() {
       $.ajax({
-        url: 'http://localhost:8000/api/list-exchange/', // Your API endpoint URL
+        url: 'http://159.223.250.9/api/list-exchange/', // Your API endpoint URL
         type: 'GET',
         dataType: 'json',
         success: function(data) {
@@ -312,7 +312,7 @@
         payment: paymentInfo,
       };
       $.ajax({
-        url: 'http://localhost:8000/api/create-service/', // Your API endpoint URL
+        url: 'http://159.223.250.9/api/create-service/', // Your API endpoint URL
         type: 'POST',
         dataType: 'json',
         data: requestData,
