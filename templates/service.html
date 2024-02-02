@@ -26,13 +26,14 @@
         <h1 class="display-4">Service</h1>
       </div>
     </header>
+    <button onClick="printReceipt()">Print</button>
     <div
       class="modal fade"
       id="modal-dialog"
       tabindex="-1"
       aria-modal="true"
       role="dialog"
-      style="display: hidden;"
+      style="display: hidden"
     >
       <div class="modal-dialog">
         <div class="modal-content">
@@ -67,7 +68,7 @@
     </div>
     <main class="container-fluid">
       <div class="row content">
-        <div class="col-sm-3 sidenav">
+        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12 sidenav">
           <h4 class="mt-2 mb-2">Booking Info</h4>
           <form id="search-code">
             <div class="input-group">
@@ -116,7 +117,7 @@
             </tbody>
           </table>
         </div>
-        <div class="col-sm-9">
+        <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
           <h2>Services</h2>
           <div class="scrollable-content" style="overflow-y: auto">
             <table class="table table-condensed table-hover" id="service-table">
@@ -149,8 +150,11 @@
         <div class="row">
           <h3>Selected Services</h3>
           <hr />
-          <div id="summary-services" class="col-9"></div>
-          <div class="card col-3">
+          <div
+            id="summary-services"
+            class="col-lg-9 col-md-7 col-sm-12 col-xs-12"
+          ></div>
+          <div class="card col-lg-3 col-md-5 col-sm-12 col-xs-12">
             <div class="mb-3">
               <label for="branch-name" class="form-label">
                 Branch Name <span class="text-danger">*</span>
@@ -213,8 +217,142 @@
             </button>
           </div>
         </div>
-        <div id="receipt">
-          <img id="outputImage" alt="Converted Image" />
+        <div
+          id="receipt"
+          style="
+            width: 80mm;
+            background-color: gray;
+            margin: 2px auto;
+            font-family: serif;
+          "
+        >
+          <img
+            id="outputImage"
+            alt="Converted Image"
+            style="
+              max-width: 100%;
+              max-height: 60px;
+              margin: 0 auto;
+              display: block;
+              font-size: 15px;
+            "
+          />
+          <div
+            id="receipt-branch"
+            style="
+              text-align: center;
+              margin-top: 2px;
+              border-bottom: 1px dashed black;
+            "
+          >
+            <h3
+              id="receipt-branch-name"
+              style="font-size: 17px; font-weight: bold"
+            >
+              Hurghada Branch
+            </h3>
+            <p id="receipt-branch-address" style="line-height: 12pt">
+              El Kahf St, Central Building, Hurghada, Red Sea
+            </p>
+
+            <p></p>
+            <p id="receipt-branch-phone" style="margin-top: -12px">
+              (012) 2123-8570
+            </p>
+          </div>
+          <div
+            id="receipt-header"
+            style="
+              border-bottom: 1px solid black;
+              padding-top: 2px;
+              padding-bottom: 2px;
+            "
+          >
+            <div>
+              <div style="display: inline-block" id="receipt-order">
+                Order #21
+              </div>
+              <span id="receipt-date" style="float: right; text-align: right">
+                26/Jan/2024 12:00AM
+              </span>
+            </div>
+            <div>
+              <div style="display: inline-block">Cashier: Online</div>
+              <span id="receipt-date2" style="float: right; text-align: right">
+                27/Jan/2024 02:11AM
+              </span>
+            </div>
+          </div>
+          <div id="receipt-details">
+            <div
+              style="
+                border-bottom: 1px dashed black;
+                padding-top: 2px;
+                padding-bottom: 2px;
+              "
+            >
+              <div style="font-weight: bold; display: block; width: 100%">
+                Dolphin show + swimming 5
+              </div>
+              <div style="line-height: 12pt; width: 50%; display: inline-block">
+                Friday, 26 January 2024
+              </div>
+              <div
+                style="
+                  line-height: 12pt;
+                  width: 20%;
+                  display: inline-block;
+                  text-align: right;
+                "
+              >
+                2 + 1
+              </div>
+              <div
+                style="
+                  line-height: 12pt;
+                  width: 25%;
+                  display: inline-block;
+                  text-align: right;
+                "
+              >
+                180.00
+              </div>
+            </div>
+            <div
+              style="
+                border-bottom: 1px dashed black;
+                padding-top: 2px;
+                padding-bottom: 2px;
+              "
+            >
+              <div style="font-weight: bold; display: block; width: 100%">
+                Dolphin show + swimming 5
+              </div>
+              <div style="line-height: 12pt; width: 50%; display: inline-block">
+                Friday, 26 January 2024
+              </div>
+              <div
+                style="
+                  line-height: 12pt;
+                  width: 20%;
+                  display: inline-block;
+                  text-align: right;
+                "
+              >
+                2 + 1
+              </div>
+              <div
+                style="
+                  line-height: 12pt;
+                  width: 25%;
+                  display: inline-block;
+                  text-align: right;
+                "
+              >
+                180.00
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -477,7 +615,7 @@
         availableServices.forEach((i) => {
           const newRow = $("<tr>").attr("id", `row-${i.id}`);
           newRow.append(
-            `<td><input type="checkbox" onClick="selectRow(${i.id})" class="row-check" id="check-${i.id}"/></td>`
+            `<td><input type="checkbox" onClick="selectRow(${i.id})" class="form-check-input row-check" id="check-${i.id}"/></td>`
           );
           newRow.append(`<td id="name-${i.id}">${i.name}</td>`);
           newRow.append(
@@ -673,21 +811,37 @@
     }
 
     function hideModal() {
-      $('#modal-dialog').removeClass('show');
-      $('#modal-dialog').css('display', 'none');
+      $("#modal-dialog").removeClass("show");
+      $("#modal-dialog").css("display", "none");
     }
 
     function showModal(title, message, status) {
-      $('#modal-title').text(title);
-      $('#modal-title').removeClass();
-      $('#modal-title').addClass('modal-title');
-      $('#modal-title').addClass(`text-${status}`);
-      $('#modal-message').text(message);
-      $('#modal-btn').removeClass();
-      $('#modal-btn').addClass('btn');
-      $('#modal-btn').addClass(`btn-${status}`);
-      $('#modal-dialog').addClass('show');
-      $('#modal-dialog').css('display', 'block');
+      $("#modal-title").text(title);
+      $("#modal-title").removeClass();
+      $("#modal-title").addClass("modal-title");
+      $("#modal-title").addClass(`text-${status}`);
+      $("#modal-message").text(message);
+      $("#modal-btn").removeClass();
+      $("#modal-btn").addClass("btn");
+      $("#modal-btn").addClass(`btn-${status}`);
+      $("#modal-dialog").addClass("show");
+      $("#modal-dialog").css("display", "block");
+    }
+
+    function printReceipt() {
+      // Get the HTML content of the specific div
+      const divToPrint = document.getElementById("receipt");
+      const newWin = window.open("", "Print-Window");
+      newWin.document.open();
+      newWin.document.write(
+        '<html><body onload="window.print()">' +
+          divToPrint.innerHTML +
+          "</body></html>"
+      );
+      newWin.document.close();
+      setTimeout(function () {
+        newWin.close();
+      }, 10);
     }
   </script>
   <style>
@@ -727,26 +881,8 @@
       padding: 15px;
     }
 
-    /* On small screens, set height to 'auto' for sidenav and grid */
-    @media screen and (max-width: 767px) {
-      .sidenav {
-        height: auto;
-        padding: 15px;
-      }
-      .row.content {
-        height: auto;
-      }
-    }
-
-    #receipt {
-      width: 80mm;
-      height: 150px;
-      background-color: gray;
-      margin: 2px auto;
-    }
-
-    #receipt > img {
-      max-width: 100%;
+    .sidenav {
+      min-height: 350px;
     }
   </style>
 </html>
