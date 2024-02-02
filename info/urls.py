@@ -2,11 +2,12 @@ from django.urls import path
 
 from .views import (
     list_hotels, get_registration, create_registration, edit_registration,
-    list_nationalities, list_service, list_exchange, create_service,
+    list_nationalities, list_service, list_exchange, create_service, list_branches,
 )
 
 urlpatterns = [
     path('hotels/', list_hotels, name='hotels'),
+    path('branches/', list_branches, name='branches'),
     path('nationality/', list_nationalities, name='nationality'),
     path('get-registration/<int:request_id>/', get_registration, name='get-registration'),
     path('create-registration/', create_registration, name='create-registration'),
