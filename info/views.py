@@ -252,7 +252,15 @@ def create_service(request):
                     sales_serializer.save()
                     collection_serializer.save()
                     payment_serializer.save()
-                return Response(data={'result': 'ok'}, status=status.HTTP_201_CREATED)
+                branch = Tblbranchs.objects.filter(branchnu=request_data['branch']).first()
+                branch_serializer = BranchSerializer(branch)
+                response_data = {
+                    'sales': sales_serializer.data,
+                    'collection': collection_serializer.data,
+                    'payment': payment_serializer.data,
+                    'branch': branch_serializer.data,
+                }
+                return Response(data=response_data, status=status.HTTP_201_CREATED)
             except Exception as e:
                 print(f"Error saving object: {e}")
                 return Response(data={'result': e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
