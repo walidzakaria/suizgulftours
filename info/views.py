@@ -209,6 +209,7 @@ def create_service(request):
                 service['status'] = 3
             else:
                 service['amount'] = round(Decimal(total_paid_egp) / Decimal(ex_rate), 2)
+                total_paid_egp = 0
                 service['status'] = 2
         collection_data = [
             { 
