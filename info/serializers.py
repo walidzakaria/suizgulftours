@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Tblguestinfo, Tblhotel, Tblnationality, Tblcollection, TblsalescompanyHolding,
-    TblpaymentsService, Tblcurrency, Tblbranchs
+    TblpaymentsService, Tblcurrency, Tblbranchs, Tblusers
 )
 
 
@@ -95,3 +95,10 @@ class BranchSerializer(serializers.ModelSerializer):
             'branchnu', 'branchname', 'branchaddress', 'branchphone1', 'branchphone2',
             'logobranch',
         )
+
+
+class UserSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Tblusers
+        fields = ('userid', 'username', 'companyid', 'branchid', )

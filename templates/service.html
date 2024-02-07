@@ -398,6 +398,7 @@
     paymentInfo = {};
     $(document).ready(function () {
       getExchange();
+      login();
       $("#rest-currency").change(function () {
         showRest();
       });
@@ -800,6 +801,27 @@
         error: function (xhr, status, error) {
           showModal("Error", "Error saving your services!", "danger");
           $("#spinner").addClass("hidden");
+          console.log(error);
+        },
+      });
+    }
+
+    function login() {
+      requestData = {
+        username: 'tarek',
+        password: '33',
+      };
+      $.ajax({
+        url: "http://localhost:8000/api/login/", // Your API endpoint URL
+        type: "POST",
+        // dataType: 'json',
+        contentType: "application/json",
+        data: JSON.stringify(requestData),
+        // data: requestData,
+        success: function (data) {
+          console.log(data);
+        },
+        error: function (xhr, status, error) {
           console.log(error);
         },
       });

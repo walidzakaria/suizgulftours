@@ -1,24 +1,21 @@
 from django.shortcuts import render
 from django.db import connection
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework import status, generics, views
+from rest_framework import status
 from rest_framework.response import Response
-from django.http import QueryDict
-import random
-import json
 from decimal import Decimal
 from django.db import transaction
 
 from .serializers import (
     GuestInfoDetailedSerializer, GuestInfoSerializer, HotelSerializer, NationalitySerializer,
     CollectionSerializer, PaymentServiceSerializer, SalesCompanyHoldingSerializer,
-    BranchSerializer, BranchShortSrializer,
+    BranchSerializer, BranchShortSrializer, UserSerializer,
 )
 from .models import (
-    Tblguestinfo, Tblhotel, Tblnationality, Tblcollection, Tblcurrency, TblpaymentsService,
-    TblsalescompanyHolding, Tblbranchs
+    Tblguestinfo, Tblhotel, Tblnationality,
+    TblsalescompanyHolding, Tblbranchs, Tblusers
 )
-
+# from .decorators import IsAuthenticated
 from .utils import create_id
 
 
@@ -274,3 +271,17 @@ def create_service(request):
             errors['payment'] = payment_serializer.errors
         return Response(data=errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['POST'])
+def login(request):
+    if request.method == 'POST':        
+        request_data = request.data
+        print('request_data', request_data)
+        user = Tblusers.objects.filter(
+            username=request_data['username'],
+            userpassword__exact=request_data['password']
+        ).first()
+        if user:
+            serializer = UserSerializer(user)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response(data={'result': 'invalid login'}, status=status.HTTP_403_FORBIDDEN)

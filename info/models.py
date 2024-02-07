@@ -233,3 +233,22 @@ class Tblbranchs(models.Model):
     class Meta:
         managed = False
         db_table = 'tblBranchs'
+
+
+class Tblusers(models.Model):
+    userid = models.AutoField(db_column='UserID', primary_key=True)  # Field name made lowercase.
+    username = models.CharField(db_column='UserName', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
+    userpassword = models.CharField(db_column='UserPassword', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    permissionid = models.IntegerField(db_column='PermissionID', blank=True, null=True)  # Field name made lowercase.
+    companyid = models.IntegerField(db_column='CompanyID', blank=True, null=True)  # Field name made lowercase.
+    usertime = models.TimeField(db_column='UserTime', blank=True, null=True)  # Field name made lowercase.
+    userpage = models.CharField(db_column='UserPage', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    userseen = models.DateTimeField(blank=True, null=True)
+    treasury = models.SmallIntegerField(db_column='Treasury', blank=True, null=True)  # Field name made lowercase.
+    department = models.SmallIntegerField(db_column='Department', blank=True, null=True)  # Field name made lowercase.
+    branchid = models.IntegerField(db_column='BranchID', blank=True, null=True)  # Field name made lowercase.
+    contactnu = models.IntegerField(db_column='ContactNu', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'tblUsers'
