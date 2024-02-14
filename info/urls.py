@@ -1,3 +1,4 @@
+from cgi import test
 from django.urls import path
 
 from .views import (
@@ -17,4 +18,5 @@ urlpatterns = [
     path('list-exchange/', list_exchange, name='list-exchange'),
     path('create-service/', create_service, name='create-service'),
     path('login/', login, name='login'),
+    path('test/', test, name='test'),
 ]

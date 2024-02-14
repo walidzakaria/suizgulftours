@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from decimal import Decimal
 from django.db import transaction
+from django.db.models import Max
 
 from .serializers import (
     GuestInfoDetailedSerializer, GuestInfoSerializer, HotelSerializer, NationalitySerializer,
@@ -143,8 +144,7 @@ def create_service(request):
     if request.method == 'POST':        
         
         request_data = request.data
-        last_record = TblsalescompanyHolding.objects.last()
-        max_id = last_record.specificid + 1 if last_record else 1
+        max_id = TblsalescompanyHolding.objects.aggregate(max_value=Max('specificid'))['max_value'] + 1
         nationality = Tblnationality.objects.filter(nationality=request_data['country']).first()
         nationality_id = nationality.nationalityid if nationality else None
         sales_data = [
@@ -285,3 +285,32 @@ def login(request):
             serializer = UserSerializer(user)
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         return Response(data={'result': 'invalid login'}, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(['GET'])
+def test(request):
+    if request.method == 'GET':
+        
+        with connection.cursor() as cursor:
+            # Execute your SQL query
+            cursor.execute("select * from emp_Section")
+            # Fetch the results
+            rows = cursor.fetchall()
+            print(rows)
+            # Process the results as needed
+            result = []
+            for row in rows:
+                # Do something with each row
+                new_row = {
+                    'ActivityID': row[0],
+                    'ActivityType': row[1],
+                    # 'ActivityName': row[2],
+                    # 'AdultPrice': row[3],
+                    # 'ChildPrice': row[4],
+                    # 'PriceCurrency': row[5],
+                    # 'SalesCommission': row[6],
+                    # 'Private': row[7],
+                }
+                result.append(new_row)
+            print(result)
+        return Response(data=result, status=status.HTTP_200_OK)
